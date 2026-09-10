@@ -19,3 +19,10 @@ pushall.sh
 ci-user/
 user/
 os/vendor/
+
+# Local grading artifacts
+.DS_Store
+__pycache__/
+*.pyc
+tmp/
+rank/
