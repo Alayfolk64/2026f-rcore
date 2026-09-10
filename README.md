@@ -1,80 +1,52 @@
-# rCore-Tutorial-Code
+# 2026f rCore 操作系统实验
 
-## Code
+基于 [LearningOS 2026s rCore 课程模板](https://github.com/LearningOS/2026s-oscamp-professional-2026s-rcore-rCore-Tutorial-Code) 整理，供学员 Fork 到个人 GitHub 账号后完成实验、自动测试，并同步 OpenCamp 成绩。
 
-- [Soure Code of labs](https://github.com/LearningOS/rCore-Tutorial-Code)
+**课程编号：2073 · 五项实验：每项 100 分 · 总分：500 分**
 
-## Documents
+## 开始实验
 
-- Concise Manual: [rCore-Tutorial-Guide](https://LearningOS.github.io/rCore-Tutorial-Guide/)
+1. 在 OpenCamp 加入对应训练营，绑定自己的 GitHub 账号。
+2. Fork [本仓库](https://github.com/Alayfolk64/2026f-rcore)，**取消勾选 `Copy the main branch only`**，保留 `main` 和 `ch1` 至 `ch8`。
+3. 在自己的 Fork 中启用 **Actions**。
+4. 在 **Settings → Secrets and variables → Actions** 添加 `ARCEOS_2026_SPRING_TOKEN`，值使用管理员提供的课程 Token。
+5. 克隆自己的仓库，切换实验分支，完成代码和报告后 push。Actions 自动测试，通过后上传累计成绩。
 
-- Detail Book [rCore-Tutorial-Book-v3](https://rcore-os.github.io/rCore-Tutorial-Book-v3/)
+完整操作说明：[从 Fork 到自动评测](docs/FORK_GUIDE.md)。每个章节已经配好 CI，无需 GitHub Classroom，也无需向上游提交 PR。
 
-## OS API docs of rCore Tutorial Code
+## 分支与实验报告
 
-- [OS API docs of ch1](https://learningos.github.io/rCore-Tutorial-Code/ch1/os/index.html)
-  AND [OS API docs of ch2](https://learningos.github.io/rCore-Tutorial-Code/ch2/os/index.html)
-- [OS API docs of ch3](https://learningos.github.io/rCore-Tutorial-Code/ch3/os/index.html)
-  AND [OS API docs of ch4](https://learningos.github.io/rCore-Tutorial-Code/ch4/os/index.html)
-- [OS API docs of ch5](https://learningos.github.io/rCore-Tutorial-Code/ch5/os/index.html)
-  AND [OS API docs of ch6](https://learningos.github.io/rCore-Tutorial-Code/ch6/os/index.html)
-- [OS API docs of ch7](https://learningos.github.io/rCore-Tutorial-Code/ch7/os/index.html)
-  AND [OS API docs of ch8](https://learningos.github.io/rCore-Tutorial-Code/ch8/os/index.html)
-- [OS API docs of ch9](https://learningos.github.io/rCore-Tutorial-Code/ch9/os/index.html)
+| 分支 | 内容 | 分值 | 必须提交的报告 |
+| --- | --- | ---: | --- |
+| `main` | 课程入口与操作指南 | — | — |
+| `ch1` | 应用程序与执行环境 | — | — |
+| `ch2` | 批处理系统 | — | — |
+| `ch3` | 多道程序与分时多任务 | 100 | `lab1` |
+| `ch4` | 地址空间 | 100 | `lab1`、`lab2` |
+| `ch5` | 进程管理 | 100 | `lab1` 至 `lab3` |
+| `ch6` | 文件系统与 I/O | 100 | `lab1` 至 `lab4` |
+| `ch7` | 进程间通信 | — | — |
+| `ch8` | 并发与同步 | 100 | `lab1` 至 `lab5` |
 
-## Related Resources
+报告放在 `reports/`，文件名为 `lab1.md` 或 `lab1.pdf` 等。请提交真实实验报告；后续章节仍需保留此前报告。
 
-- [Learning Resource](https://github.com/LearningOS/rust-based-os-comp2025/blob/main/relatedinfo.md)
+## 评分与同步
 
-## Setup
+push 到 `ch3`、`ch4`、`ch5`、`ch6`、`ch8` 自动触发对应章节评测。官方测试全部通过、实验报告齐全且检查器成功退出，才记该章 100 分。重复通过不会重复加分，已通过章节的成绩会保留。
 
-```bash
-$ git clone https://github.com/LearningOS/2026s-rcore-[YOUR_USER_NAME].git
-$ cd 2026s-rcore-[YOUR_USER_NAME]
-```
+Actions 先执行 **Test chapter and reports**，通过后执行 **Save progress and upload score**。上传日志出现 `OpenCamp accepted the score (result=1).` 表示 OpenCamp 接口接受了成绩；再到学员成绩页面核对显示。
 
-## Build & Run
+通过记录保存在个人仓库 `gh-pages` 分支的 `course-2073.json`。本仓库固定向课程 **2073** 上传，Secret 沿用 `ARCEOS_2026_SPRING_TOKEN` 这个名称。Token 只存入 Secrets，不写入仓库。
 
-```bash
-# setup build&run environment first
-$ git clone https://github.com/LearningOS/rCore-Tutorial-Test.git user
-$ git checkout ch$ID
-$ cd os
-# run OS in ch$ID
-$ make run
-```
+模板保留待完成的实验代码，直接运行时出现测试失败属于预期结果。`main`、`ch1`、`ch2`、`ch7` 不计分。
 
-If you want to use docker to build and run, you can use the following command:
-```bash
-# After clone the `rCore-Tutorial-Test` repository to your local machine, you can use the following command to build and run:
-$ make build_docker
-$ make docker
-```
+## 文档与来源
 
-If you experience network issues when accessing foreign resources such as GitHub in Docker, you can follow the following suggestions according to your stage:
+- [学员 Fork 与提交指南](docs/FORK_GUIDE.md)
+- [课程配置和维护说明](docs/MAINTAINER.md)
+- [验证记录与当前限制](docs/VALIDATION.md)
+- [保留的 2026s 上游说明](docs/UPSTREAM-2026s.md)
+- [rCore 实验指导](https://learningos.github.io/rCore-Tutorial-Guide/)
+- [rCore 教程](https://rcore-os.github.io/rCore-Tutorial-Book-v3/)
 
-- Docker pull:
-  1. use proxy: https://docs.docker.com/reference/cli/docker/image/pull/#proxy-configuration
-
-  2. use available domestic source (self-search)
-
-- Docker build: use proxy https://docs.docker.com/engine/cli/proxy/#build-with-a-proxy-configuration
-
-- Docker run: use proxy option, related operations are similar to `Docker build`, can refer to the relevant materials by yourself
-
-
-Notice: $ID is from [1-9]
-
-## Grading
-
-```bash
-# setup build&run environment first
-$ rm -rf ci-user
-$ git clone https://github.com/LearningOS/rCore-Tutorial-Checker.git ci-user
-$ git clone https://github.com/LearningOS/rCore-Tutorial-Test.git ci-user/user
-$ git checkout ch$ID
-# check&grade OS in ch$ID with more tests
-$ cd ci-user && make test CHAPTER=$ID
-```
-
-Notice: $ID is from [3,4,5,6,8]
+本仓库由个人账号维护，保留上游源码历史，按 [GPL-3.0](LICENSE) 许可分发。
