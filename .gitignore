@@ -20,3 +20,10 @@ easy-fs-fuse/target/*
 tools/
 pushall.sh
 *.bak
+
+# Local grading artifacts
+.DS_Store
+__pycache__/
+*.pyc
+tmp/
+rank/
