@@ -23,7 +23,13 @@ python3 .github/tests/test_grading.py
 
 首次执行 QEMU 测试得到 `Test passed10564: 7/7`，报告检查成功，官方检查器退出状态 0。包装脚本最初只识别无后缀的 `Test passed:`，导致误判失败；已修正为兼容官方随机数字后缀，并添加真实输出回归用例。
 
-修正后的完整运行及 GitHub 模板运行结果将在本次发布验收后补充。
+修正后从全新 checkout 再次完整执行，实际结果为 `Test passed54729: 7/7`、`Report for lab1 found.`，包装脚本退出状态 **0**，结果为 `passed: true`、`points: 7/7`。因此编译、QEMU、官方检查器、报告检查和结果解析的正向链路已经实际通过。
+
+## 仓库与 GitHub 验证
+
+`main` 和 `ch1` 至 `ch8` 已推送至 [Alayfolk64/2026f-rcore](https://github.com/Alayfolk64/2026f-rcore)。逐分支与 2026s 上游提交比较，差异仅为 CI、课程文档和忽略规则，章节实验源码没有修改。各分支的评分工作流和脚本保持一致。
+
+已在仓库设置中添加 `ARCEOS_2026_SPRING_TOKEN`；公开文件不包含凭证值。GitHub 上的空白模板运行将在本次发布验收后记录，预期因为实验尚未完成而不通过，不应上传满分。
 
 ## OpenCamp 同步验证范围
 
