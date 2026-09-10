@@ -18,7 +18,8 @@ def run(command):
 
 
 def parse_points(log):
-    matches = re.findall(r"^Test passed: (\d+)/(\d+)\s*$", log, re.MULTILINE)
+    # The official checker randomizes every 'passed' marker, including its summary.
+    matches = re.findall(r"^Test passed\d*: (\d+)/(\d+)\s*$", log, re.MULTILINE)
     if len(matches) != 1:
         raise ValueError("Expected exactly one official 'Test passed: N/M' summary.")
     got, total = map(int, matches[0])
@@ -79,4 +80,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
