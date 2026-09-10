@@ -1,4 +1,4 @@
-name: rCore 2026s grading
+name: rCore 2026f grading
 
 on:
   push:
@@ -61,4 +61,3 @@ jobs:
           ARCEOS_2026_SPRING_TOKEN: ${{ secrets.ARCEOS_2026_SPRING_TOKEN }}
           GRADE_POINTS: ${{ needs.basic-test.outputs.points }}
         run: python3 -u .github/scripts/rcore_publish.py
-
