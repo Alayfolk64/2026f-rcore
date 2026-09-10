@@ -1,114 +1,64 @@
-name: Jobs
+name: rCore 2026s grading
 
-on: [push]
+on:
+  push:
+    branches: [ch3, ch4, ch5, ch6, ch8]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 env:
-  CARGO_TERM_COLOR: always
-  rust_toolchain: nightly
+  OSCAMP_COURSE_ID: '2073'
+  CARGO_TERM_COLOR: never
+  TZ: Asia/Shanghai
 
 jobs:
-  build-doc:
-    if: github.repository == 'LearningOS/rCore-Tutorial-Code'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Build doc
-        run: |
-          git clone https://github.com/LearningOS/rCore-Tutorial-Test.git user
-          cd os
-          make
-          cargo doc --no-deps --verbose
-      - name: Push to gh-pages
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./os/target/riscv64gc-unknown-none-elf/doc
-          destination_dir: ${{ github.ref_name }}
   basic-test:
+    name: Test chapter and reports
+    if: contains(fromJSON('["ch3","ch4","ch5","ch6","ch8"]'), github.ref_name)
     runs-on: ubuntu-latest
-    outputs:
-      points: ${{ steps.end.outputs.points }}
+    timeout-minutes: 25
     container:
       image: alicesama/rcore-ci:2024a
+    outputs:
+      points: ${{ steps.grade.outputs.points }}
     steps:
       - uses: actions/checkout@v4
-      - name: Run tests
-        run: |
-          qemu-system-riscv64 --version
-          rustup target add riscv64gc-unknown-none-elf
-          git config --global --add safe.directory /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}
-          git clone https://github.com/LearningOS/rCore-Tutorial-Checker.git ci-user
-          git clone https://github.com/LearningOS/rCore-Tutorial-Test.git ci-user/user
-          ID=`git rev-parse --abbrev-ref HEAD | grep -oP 'ch\K[0-9]'`
-          cd ci-user
-          make test CHAPTER=$ID | tee ../output.txt
-      - name: end
-        id: end
-        run: grep -a "Test passed" output.txt | grep -oP "\d{1,}/\d{1,}" | xargs -i echo "points={}" | tee $GITHUB_OUTPUT
-      - name: Require full points
-        run: |
-          POINTS='${{ steps.end.outputs.points }}'
-          if [ -z "$POINTS" ]; then
-            echo "points is empty"
-            exit 1
-          fi
-          GOT="${POINTS%%/*}"
-          TOTAL="${POINTS##*/}"
-          if [ "$GOT" != "$TOTAL" ]; then
-            echo "points is not full score: $POINTS"
-            exit 1
-          fi
-          echo "points is full score: $POINTS"
-  deploy:
-    if: github.repository != 'LearningOS/rCore-Tutorial-Code'
-    name: Deploy to pages
+        with:
+          persist-credentials: false
+      - name: Run official rCore checker
+        id: grade
+        run: python3 -u .github/scripts/rcore_grade.py
+      - name: Preserve test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rcore-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            tmp/rcore-grade.log
+            tmp/rcore-result.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  report:
+    name: Save progress and upload score
     needs: basic-test
+    # A personal fork records its owner's work. Maintainer/bot pushes only test.
+    if: github.actor == github.repository_owner
     runs-on: ubuntu-latest
-    permissions: write-all
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    concurrency:
+      group: opencamp-course-2073-report
+      queue: max
+      cancel-in-progress: false
     steps:
-      - uses: actions/checkout@v3
-        continue-on-error: true
-        with:
-          ref: gh-pages
-      - name: Save Log File
-        uses: yfblock/multi-rank-log@main
-        with:
-          public-dir: classroom
-          points: ${{ needs.basic-test.outputs.points }}
-      - name: GitHub Pages
-        uses: crazy-max/ghaction-github-pages@v3
-        with:
-          target_branch: gh-pages
-          build_dir: ./classroom
-          keep_history: true
+      - uses: actions/checkout@v4
+      - name: Save passed chapter and upload cumulative score
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Upload score
-        run: |
-          cat classroom/latest.json
-          score=$(( $(grep -o 'ch' classroom/latest.json | wc -l) * 100))
-          echo $score
+          ARCEOS_2026_SPRING_TOKEN: ${{ secrets.ARCEOS_2026_SPRING_TOKEN }}
+          GRADE_POINTS: ${{ needs.basic-test.outputs.points }}
+        run: python3 -u .github/scripts/rcore_publish.py
 
-          score_json=$(jq -n \
-            --arg channel github \
-            --argjson courseId ${{ secrets.RCORE_2026_SPRING_COURSE_ID }} \
-            --arg name ${{ github.actor }} \
-            --argjson score $score \
-            --argjson totalScore 500 \
-            '{channel: $channel, courseId: $courseId, name: $name, score: $score, totalScore: $totalScore}')
-
-          response=$(curl -X POST ${{ secrets.COURSE_POST_API }} \
-            -H "accept: application/json;charset=utf-8" \
-            -H "Content-Type: application/json" \
-            -H "token: ${{ secrets.RCORE_2026_SPRING_TOKEN }}" \
-            -d "$score_json" \
-            -v)
-
-          echo "Response: $response"
-
-          if echo "$response" | grep -q '"result":1'; then
-            echo "Success: The result field contains 1."
-          else
-            echo "Error: The result field does not contain 1."
-            exit 1
-          fi
