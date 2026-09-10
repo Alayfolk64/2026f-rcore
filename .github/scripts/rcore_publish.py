@@ -1,6 +1,5 @@
 """Persist fully passed chapters on gh-pages, then submit their cumulative score."""
 
-from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
@@ -122,4 +121,3 @@ if __name__ == "__main__":
         main()
     except (ValueError, RuntimeError, subprocess.CalledProcessError) as error:
         sys.exit(str(error))
-
