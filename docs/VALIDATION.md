@@ -29,7 +29,29 @@ python3 .github/tests/test_grading.py
 
 `main` 和 `ch1` 至 `ch8` 已推送至 [Alayfolk64/2026f-rcore](https://github.com/Alayfolk64/2026f-rcore)。逐分支与 2026s 上游提交比较，差异仅为 CI、课程文档和忽略规则，章节实验源码没有修改。各分支的评分工作流和脚本保持一致。
 
-已在仓库设置中添加 `ARCEOS_2026_SPRING_TOKEN`；公开文件不包含凭证值。GitHub 上的空白模板运行将在本次发布验收后记录，预期因为实验尚未完成而不通过，不应上传满分。
+已在仓库设置中添加 `ARCEOS_2026_SPRING_TOKEN`，GitHub 显示 `Repository secret added.`；公开文件不包含凭证值。
+
+2026-09-11 实际向五个评分分支 push，全部自动触发。以下结果来自未完成实验的上游模板，**测试失败是预期结果**：
+
+| 分支 | 官方测试通过数 | 检查器退出状态 | GitHub 运行 |
+| --- | --- | ---: | --- |
+| `ch3` | 5/7 | 2 | [运行记录](https://github.com/Alayfolk64/2026f-rcore/actions/runs/34525042217) |
+| `ch4` | 4/16 | 2 | [运行记录](https://github.com/Alayfolk64/2026f-rcore/actions/runs/34525126176) |
+| `ch5` | 2/15 | 2 | [运行记录](https://github.com/Alayfolk64/2026f-rcore/actions/runs/34525135684) |
+| `ch6` | 2/31 | 2 | [运行记录](https://github.com/Alayfolk64/2026f-rcore/actions/runs/34525146286) |
+| `ch8` | 22/25 | 2 | [运行记录](https://github.com/Alayfolk64/2026f-rcore/actions/runs/34525167984) |
+
+五次运行均成功拉取镜像、检出源码、执行官方检查器并保存日志及 JSON 附件；失败结果被正确解析，成绩上传作业全部跳过。`ch3` 原始失败包括：
+
+```text
+Panicked at src/bin/ch3_trace.rs:22, assertion failed: 3 <= count_syscall(SYSCALL_GETTIMEOFDAY)
+Test passed14832: 5/7
+AssertionError
+make: *** [Makefile:118: test] Error 1
+Process completed with exit code 2.
+```
+
+这证明未完成的模板不会被误判为通过。对应的完整通过场景已在上面的本地独立 checkout 实测为 7/7；未把已完成作业发布到模板，也未让模板仓库上传练习成绩。
 
 ## OpenCamp 同步验证范围
 
