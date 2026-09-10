@@ -1,26 +1,64 @@
-name: Jobs
+name: rCore 2026s grading
 
-on: [push]
+on:
+  push:
+    branches: [ch3, ch4, ch5, ch6, ch8]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 env:
-  CARGO_TERM_COLOR: always
-  rust_toolchain: nightly
+  OSCAMP_COURSE_ID: '2073'
+  CARGO_TERM_COLOR: never
+  TZ: Asia/Shanghai
 
 jobs:
-  build-doc:
-    if: github.repository == 'LearningOS/rCore-Tutorial-Code'
+  basic-test:
+    name: Test chapter and reports
+    if: contains(fromJSON('["ch3","ch4","ch5","ch6","ch8"]'), github.ref_name)
     runs-on: ubuntu-latest
+    timeout-minutes: 25
+    container:
+      image: alicesama/rcore-ci:2024a
+    outputs:
+      points: ${{ steps.grade.outputs.points }}
     steps:
       - uses: actions/checkout@v4
-      - name: Build doc
-        run: |
-          git clone https://github.com/LearningOS/rCore-Tutorial-Test.git user
-          cd os
-          make
-          cargo doc --no-deps --verbose
-      - name: Push to gh-pages
-        uses: peaceiris/actions-gh-pages@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./os/target/riscv64gc-unknown-none-elf/doc
-          destination_dir: ${{ github.ref_name }}
+          persist-credentials: false
+      - name: Run official rCore checker
+        id: grade
+        run: python3 -u .github/scripts/rcore_grade.py
+      - name: Preserve test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rcore-${{ github.ref_name }}-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            tmp/rcore-grade.log
+            tmp/rcore-result.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  report:
+    name: Save progress and upload score
+    needs: basic-test
+    # A personal fork records its owner's work. Maintainer/bot pushes only test.
+    if: github.actor == github.repository_owner
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    concurrency:
+      group: opencamp-course-2073-report
+      queue: max
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@v4
+      - name: Save passed chapter and upload cumulative score
+        env:
+          ARCEOS_2026_SPRING_TOKEN: ${{ secrets.ARCEOS_2026_SPRING_TOKEN }}
+          GRADE_POINTS: ${{ needs.basic-test.outputs.points }}
+        run: python3 -u .github/scripts/rcore_publish.py
+
